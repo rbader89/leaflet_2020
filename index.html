@@ -8,12 +8,30 @@
         <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
             integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
             crossorigin=""></script>
+        <script src="jquery.js"></script>
         <script src="script.js"></script>
     </head>
 
     <body onload="init();">
         <div id="mapid"></div>
         <p id="latLongBox"></p>
+        <div>
+            <label for="name">Név: </label>
+            <input type="text" id="name">
+            <label for="type">Típus: </label>
+            <input type="text" id="type">
+            <label for="condition">Állapot: </label>
+            <select id="condition">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <label for="active">Aktív:</label>
+            <input type="checkbox" id="active">
+            <button onclick="createPoi()">Mentés</button>
+        </div>
     </body>
 
 </html>

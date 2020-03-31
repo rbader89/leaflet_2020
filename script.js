@@ -1,8 +1,13 @@
+var mymap;
+var clickLat;
+var clickLon;
+var markerLayer = new L.LayerGroup();
+
 function init() {
 
     var center = [47.1611615, 19.5057541]
 
-    var mymap = L.map('mapid', {
+    mymap = L.map('mapid', {
         center: center,
         zoom: 7
     });
@@ -10,9 +15,10 @@ function init() {
     mymap.addEventListener('click', function(event) {
         
         var latLonContainer = document.getElementById('latLongBox');
-        console.log(event)
         var latLonStr = `Lat: ${event.latlng.lat}, Lon: ${event.latlng.lng}`;
-        console.log(latLonStr)
+
+        clickLat = event.latlng.lat;
+        clickLon = event.latlng.lng;
 
         latLonContainer.innerHTML = latLonStr;
     })
@@ -44,6 +50,67 @@ function init() {
         attribution: "Saját pont réteg"
     }).addTo(mymap);
 
-    var marker = L.marker(center).addTo(mymap);
+    markerLayer.addTo(mymap);
+
+    getAllPois();
+
+}
+
+function getAllPois() {
+
+    $.ajax({
+        url: "http://localhost:5000/pois",
+        dataType: "json",
+        success: function(data) {
+
+            markerLayer.clearLayers();
+            
+            for (i = 0; i < data.length; i++) {
+
+                popupContent = `
+                    <div>
+                        <p>Név: ${data[i].name}</p>
+                        <p>Típus: ${data[i].type}</p>
+                        <p>Állapot: ${data[i].condition}</p>
+                        <p>Aktív: ${data[i].active ? 'Igen' : 'Nem'}</p>
+                    </div>
+                `
+
+                popup = L.popup().setLatLng([[data[i].y, data[i].x]]).setContent(popupContent)
+
+                marker = L.marker([data[i].y, data[i].x], {
+                    clickable: true
+                }).bindPopup(popup);
+
+                markerLayer.addLayer(marker);
+
+            }
+
+        }
+    })
+
+}
+
+function createPoi() {
+
+    var poi = {   
+        name: document.getElementById("name").value,
+        type: document.getElementById("type").value,
+        condition: document.getElementById("condition").value,
+        active: document.getElementById("active").checked,
+        x_coord: clickLon,
+        y_coord: clickLat
+    }
+
+    console.log(poi)
+
+    $.ajax({
+        url: `http://localhost:5000/create?name=${poi.name}&type=${poi.type}&condition=${poi.condition}&active=${poi.active}&x_coord=${poi.x_coord}&y_coord=${poi.y_coord}`,
+        dataType: 'json',
+        method: 'POST',
+        success: function(data) {
+            getAllPois();
+        }
+    })
 
 }
