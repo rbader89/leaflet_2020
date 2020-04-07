@@ -30,6 +30,8 @@
             </select>
             <label for="active">Aktív:</label>
             <input type="checkbox" id="active">
+            <label for="gps">GPS:</label>
+            <input type="checkbox" id="gps" onchange="positionByGPSChanged()" disabled="true">
             <button onclick="createPoi()">Mentés</button>
         </div>
     </body>

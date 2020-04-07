@@ -2,6 +2,17 @@ var mymap;
 var clickLat;
 var clickLon;
 var markerLayer = new L.LayerGroup();
+var gpsLayer = new L.LayerGroup();
+var greenIcon = new L.Icon({
+    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+var positionByGps = false;
+var gpsCoords;
 
 function init() {
 
@@ -51,8 +62,17 @@ function init() {
     }).addTo(mymap);
 
     markerLayer.addTo(mymap);
+    gpsLayer.addTo(mymap);
 
     getAllPois();
+
+    mymap.locate();
+
+    mymap.on('locationfound', locationFound);
+
+    setInterval(() => {
+        mymap.locate();
+    }, 1000);
 
 }
 
@@ -93,13 +113,23 @@ function getAllPois() {
 
 function createPoi() {
 
+    lon = clickLon;
+    lat = clickLat;
+
+    if (positionByGps == true) {
+
+        lat = gpsCoords[0];
+        lon = gpsCoords[1];
+
+    }
+
     var poi = {   
         name: document.getElementById("name").value,
         type: document.getElementById("type").value,
         condition: document.getElementById("condition").value,
         active: document.getElementById("active").checked,
-        x_coord: clickLon,
-        y_coord: clickLat
+        x_coord: lon,
+        y_coord: lat
     }
 
     console.log(poi)
@@ -112,5 +142,28 @@ function createPoi() {
             getAllPois();
         }
     })
+
+}
+
+function locationFound(e) {
+    
+    gpsLayer.clearLayers();
+
+    gpsMarker = L.marker([e.latitude, e.longitude], {icon: greenIcon});
+
+    gpsLayer.addLayer(gpsMarker);
+
+    gpsCoords = [e.latitude, e.longitude];
+
+    document.getElementById("gps").disabled = false;
+
+}
+
+function positionByGPSChanged() {
+
+    value = document.getElementById("gps").checked;
+
+    positionByGps = value;
+    console.log(positionByGps);
 
 }
